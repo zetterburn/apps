@@ -23,9 +23,10 @@
                     <label class="control">Maximum Length: </label>
                     <input type="number" min="4" max="60" id="maxlength" name="maxlength" value="8" />
                     <br/>
-                    <br class="nornd"/>
+                    <br/>
                     <input type="checkbox" id="include" name="include" value="include" checked />
                     <label class="control">Include Numbers</label>
+                    <br class="nornd"/>
                     <br class="nornd"/>
                     <label class="control nornd" id="numamt">Number of Digits: </label>
                     <input type="number" min="1" max="8" id="numlength" class="nornd" name="maxnum" value="1"/>
@@ -49,9 +50,9 @@
             <div id="result">
                 
                 <div class="vert">
-                    <p id="passgen">(press generate)</p>
+                    <b><span class="tooltiptext" id="myTooltip" onmouseout="outFunc()"><p id="passgen" onclick="copy(this)">(press generate)</p></span></b>
+                    <i><p id="clicktocopy" style="display: none;">(click to copy)</p></i>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -66,6 +67,30 @@
             //1 to max, or 0
             if (max == 0) return 0;
             return Math.floor(Math.random() * max)+1;
+        }
+
+        let passtext = "(press generate)";
+
+        function outFunc() {
+            var g = document.getElementById("passgen");
+            g.innerText = passtext;
+        }
+
+        function copy(that){
+            
+            var copyText = document.getElementById("passgen");
+            if (passtext == "(press generate)") return;
+            var tooltip = document.getElementById("myTooltip");
+            passtext = copyText.innerText.replace(/Copied: /g, '');
+
+            var inp = document.createElement('input');
+            document.body.appendChild(inp)
+            inp.value = that.textContent.replace(/Copied: /g, '');
+            inp.select();
+            document.execCommand('copy',false);
+            inp.remove();
+
+            if (!copyText.innerText.startsWith("Copied: ")) document.getElementById("passgen").innerText = "Copied: " + copyText.innerText;
         }
         
         function typeChange() {
@@ -135,6 +160,7 @@
                     break;
             }
 
+            passtext = newPass;
             return newPass;
         }
 
@@ -157,7 +183,7 @@
                         break;
                 }
             }
-            let dict2 = dict.filter(a=>a.length >= min && a.length <= max);
+            let dict2 = dict.filter(a=>a.length >= Math.min(16,min) && a.length <= max);
             dict2 = dict2[randomInt(dict2.length)-1];
             let newnum = "";
             if (num == 0){}
@@ -227,7 +253,12 @@
             if (minlength > maxlength){
                 return alert("Minimum Length can not exceed Maximum length.");
             }
+
+            document.getElementById("clicktocopy").style.display = "";
             document.getElementById("passgen").innerHTML = `${generateSwitch(type, minlength, maxlength, include, numlength, placement)}`;
+            if (minlength > 16 && type == "w") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: no words exceed 16 letters)";
+            else if (minlength > 16 && type == "n") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: no names exceed 16 letters)";
+            else document.getElementById("clicktocopy").innerHTML = "(click to copy)";
         }
 
         
