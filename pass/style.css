@@ -63,6 +63,11 @@ i p {
 #buttons {
     max-width:200px;
     width: 200px;
+    height: 40px;
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    letter-spacing: 1px;
 }
 
 .result {
@@ -71,7 +76,7 @@ i p {
 }
 
 .vert {
-    height: 250px;
+    height: 300px;
     width: 400px;
     min-width: 100%;
     vertical-align: middle;
