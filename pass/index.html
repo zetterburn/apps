@@ -14,26 +14,26 @@
                         <option value="w">Words</option>
                         <option value="n">Horses</option>
                         <option value="r">Randomized</option>
-                        <option value="r">Keysmash</option>
+                        <option value="k">Keysmash</option>
                         <option value="e">Any</option>
                     </select>
                     <br/>
                     <label class="control">Minimum Length: </label>
-                    <input type="number" min="4" max="60" id="minlength" name="minlength" value="5" />
+                    <input type="number" min="4" max="60" id="minlength" name="minlength" value="6" />
                     <br/>
                     <label class="control">Maximum Length: </label>
-                    <input type="number" min="4" max="60" id="maxlength" name="maxlength" value="9" />
-                    <br/>
-                    <br/>
-                    <input type="checkbox" id="include" name="include" value="include" checked />
-                    <label class="control">Include Numbers</label>
-                    <br class="nornd"/>
-                    <br class="nornd"/>
-                    <label class="control nornd" id="numamt">Number of Digits: </label>
-                    <input type="number" min="1" max="8" id="numlength" class="nornd" name="maxnum" value="1"/>
-                    <br class="nornd"/>
-                    <label class="control nornd" id="nornd">Number Placement:</label>
-                    <select class="passtype nornd" id="numtype">
+                    <input type="number" min="4" max="60" id="maxlength" name="maxlength" value="10" />
+                    <br class="keys"/>
+                    <br class="keys"/>
+                    <input class="keys" type="checkbox" id="include" name="include" value="include" checked />
+                    <label class="control keys">Include Numbers</label>
+                    <br class="nornd keys"/>
+                    <br class="nornd keys"/>
+                    <label class="control nornd keys" id="numamt">Number of Digits: </label>
+                    <input type="number" min="1" max="8" id="numlength" class="nornd keys" name="maxnum" value="1"/>
+                    <br class="nornd keys"/>
+                    <label class="control nornd keys" id="nornd">Number Placement:</label>
+                    <select class="passtype nornd keys" id="numtype">
                         <option value="e">End</option>
                         <option value="b">Beginning</option>
                         <option value="r">Random</option>
@@ -61,6 +61,7 @@
     <script>
 
         dict = data.toString().split(",");
+        smash = spam.toString().split(',');
         const button = document.getElementById("buttons");
         let newPass = document.getElementById("passgen");
 
@@ -75,6 +76,19 @@
         function outFunc() {
             var g = document.getElementById("passgen");
             g.innerText = passtext;
+        }
+
+        String.prototype.shuffle = function () {
+            var a = this.split(""),
+                n = a.length;
+
+            for(var i = n - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+            return a.join("");
         }
 
         function copy(that){
@@ -95,32 +109,41 @@
         }
         
         function typeChange() {
+            for (var i = 0; i < document.getElementsByClassName("keys").length; i++) document.getElementsByClassName("keys")[i].style.display = "";
+            for (var i = 0; i < document.getElementsByClassName("nornd").length; i++) document.getElementsByClassName("nornd")[i].style.display = "";
             var items = document.getElementsByClassName("nornd");
+            var sw = document.getElementById("passtype").value;
             let displayValue;
-            switch (document.getElementById("passtype").value){
+            switch (sw){
                 case "w": 
                     displayValue = "";
+                    items = document.getElementsByClassName("nornd");
                     dict = data.toString().split(",");
                     break;
                 case "n":
                     displayValue = "";
+                    items = document.getElementsByClassName("nornd");
                     dict = data2.toString().split(",");
+                    break;
+                case "k":
+                    items = document.getElementsByClassName("keys");
+                    displayValue = "none";
+                    dict = data.toString().split(",");
                     break;
                 case "r": 
                     displayValue = "none";
+                    items = document.getElementsByClassName("nornd");
                     dict = data.toString().split(",");
                     break;
                 default:
                     if (randomInt(2) == 1) dict = data.toString().split(",");
                     else dict = data2.toString().split(",");
+                    items = document.getElementsByClassName("nornd");
                     displayValue = "none";
                     break;
             }
 
-            
-
-            for (var i=0; i < items.length; i++) items[i].style.display = displayValue;
-
+            for (var i = 0; i < items.length; i++) items[i].style.display = displayValue;
         }
 
         function generateSwitch (type, min, max, inc, num, spot) {
@@ -138,7 +161,9 @@
                     //user wants random character password
                     newPass = generateRandomPassword(min, max, inc);
                     break;
-
+                case "k":
+                    newPass = generateKeysmashPassword(min, max);
+                    break;
                 case "e":
                 default:
                     //user wants either random character or random word
@@ -147,12 +172,14 @@
                     else dict = data2.toString().split(",");
                     if (inc) num = randomInt(4);
 
-                    switch (randomInt(2)){
+                    switch (randomInt(3)){
                         case 2:
                             newPass = generateWordPassword(min, max, num, "a");
                             break;
 
                         case 1:
+                            newPass = generateKeysmashPassword(min, max);
+                            break;
                         default:
                             newPass = generateRandomPassword(min, max, inc);
                         break;
@@ -242,6 +269,30 @@
             return pass;
         }
 
+        function generateKeysmashPassword(min, max){
+            let pass = '';
+            if (randomInt(2) == 1){
+                let temp = randomInt(smash.length)-1;
+                let temp2 = randomInt(smash.length)-1;
+                for (var i = 0; i < 3; i++)
+                    pass += smash[temp];
+                for (var i = 0; i < 3; i++)
+                    pass += smash[temp2];
+            }
+            else
+                for (var i = 0; i < 5; i++)
+                    pass += smash[randomInt(smash.length)-1];
+        
+            for (var i = 0; i < 2; i++)
+                pass = pass.shuffle();
+            if (pass.length > 60) pass = pass.substr(0,60);
+
+            let start = 0;
+            start = Math.max(randomInt(Math.min(max,60)-Math.min(min,60))-1,0);
+            let len = Math.min(max,randomInt(max-min)+min);
+
+            return pass.substr(start,len);
+        }
 
         function generatePassword() {
             let minlength = parseInt(document.getElementById("minlength").value) || 6,
@@ -257,8 +308,8 @@
 
             document.getElementById("clicktocopy").style.display = "";
             document.getElementById("passgen").innerHTML = `${generateSwitch(type, minlength, maxlength, include, numlength, placement)}`;
-            if (minlength > 16 && type == "w") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: no words exceed 16 letters)";
-            else if (minlength > 16 && type == "n") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: no names exceed 16 letters)";
+            if ((minlength > 16 || maxlength > 16) && type == "w") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: no words are longer than 16 letters)";
+            else if ((minlength > 16 || maxlength > 16) && type == "n") document.getElementById("clicktocopy").innerHTML = "(click to copy)<br>(note: only one horse name is 16+ letters)";
             else document.getElementById("clicktocopy").innerHTML = "(click to copy)";
         }
 

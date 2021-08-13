@@ -81,6 +81,9 @@ i p {
     min-width: 100%;
     vertical-align: middle;
     display: table-cell;
+    -ms-word-break: break-all;
+    word-break: break-all;
+    white-space: pre-wrap
 }
 
 @media (max-width: 800px) {
