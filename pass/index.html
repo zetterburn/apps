@@ -269,6 +269,10 @@
             return pass;
         }
 
+        String.prototype.replaceAt = function(index, replacement) {
+            return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+        }
+
         function generateKeysmashPassword(min, max){
             let pass = '';
             if (randomInt(2) == 1){
@@ -285,13 +289,105 @@
         
             for (var i = 0; i < 2; i++)
                 pass = pass.shuffle();
+            pass += smash[randomInt(smash.length)-1];
+            pass = pass.shuffle();
             if (pass.length > 60) pass = pass.substr(0,60);
 
             let start = 0;
             start = Math.max(randomInt(Math.min(max,60)-Math.min(min,60))-1,0);
             let len = Math.min(max,randomInt(max-min)+min);
 
-            return pass.substr(start,len);
+            // randomize casing
+
+            //roll to see if anything is capitalized
+
+            //1-10, 1 = all caps, 2-5 = mixed caps, 6-9 = no caps, 10 = random caps
+
+            pass = pass.substr(start,len);
+
+            switch (randomInt(10)){
+                case 10:
+                    for (var i = 0; i < randomInt(Math.floor(pass.length/3)); i++){
+                        let te = randomInt(pass.length)-1;
+                        pass = pass.replaceAt(te, pass[te].toUpperCase());
+                    }
+                        
+                    break;
+                case 2: case 3: case 4: case 5: 
+                    let startpoint = 0;
+                    let endpoint = 0;
+                    let startrnd;
+                    let endrnd;
+                    let rnd1 = randomInt(8);
+                    let rnd2 = randomInt(8);
+
+                    switch (rnd1){
+                        case 2: case 3: case 1:
+                        //near start
+                        startrnd = randomInt(Math.floor(pass.length/4))-1;
+                            break;
+                        case 4: case 5: 
+                        //middle
+                        startrnd = randomInt(Math.floor(pass.length*2/3))-1;
+                        startpoint = Math.floor(pass.length/2);
+                            break;
+                        case 6:
+                        //near end
+                        startrnd = randomInt(Math.floor(pass.length/4))-1;
+                        startpoint = Math.floor(pass.length*3/4);
+                            break;
+                        default: 
+                        startrnd = 0;
+                            break;
+                    }
+                    switch (rnd2){
+                        case 1:
+                        //near start
+                        endrnd = randomInt(Math.floor(pass.length/4))-1;
+                            break;
+                        case 2: case 3: 
+                        //middle
+                        endrnd = randomInt(Math.floor(pass.length*2/3))-1;
+                        endpoint = Math.floor(pass.length/2);
+                            break;
+                        case 4: case 5: case 6:
+                        //near end
+                        endrnd = randomInt(Math.floor(pass.length/4))-1;
+                        endpoint = Math.floor(pass.length*3/4);
+                            break;
+                        default:
+                        //end
+                        endrnd = pass.length;
+                            break;
+                    }
+
+                    let atstart = false;
+                    actualstart = Math.min(pass.length,Math.min(startpoint+startrnd, endpoint+endrnd));
+                    actualend =  Math.min(pass.length,Math.max(startpoint+startrnd, endpoint+endrnd));
+                    if (actualstart == 0)
+                        atstart = true;
+
+                    if (rnd1 == rnd2 || startpoint == endpoint || actualstart == actualend){
+                        for (var i = 0; i < pass.length*2/3; i++)
+                            if (randomInt(4) == 1){
+                                let asd = randomInt(pass.length)-1;
+                                pass = pass.replaceAt(asd, pass[asd].toUpperCase());
+                            }
+                    } else if (randomInt(6) == 6){
+                        pass = pass.toUpperCase();
+                    } else {
+                        if (!atstart)
+                            pass = pass.replaceAt(actualstart, pass.substr(actualstart,Math.abs(actualend-actualstart)).toUpperCase());
+                        else
+                            pass = pass.replaceAt(0, pass.substr(0,Math.min(actualstart,actualend)).toUpperCase());
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+
+            return pass;
         }
 
         function generatePassword() {
